@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov  9 19:44:15 2022
+
+@author: tom
+"""
+
+import pandas as pd 
+import numpy as np
+
+from sklearn import datasets 
+
+cancer = datasets.load_breast_cancer()
+
+X = cancer.data
+y = cancer.target
+
+print(X.shape)
+print(y.shape)
+
+
+df = pd.DataFrame(data=np.c_[cancer.data,cancer.target],columns=np.append(cancer.feature_names,'target'))
+
+print(df.head())
