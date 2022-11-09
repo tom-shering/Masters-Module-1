@@ -23,3 +23,149 @@ print(y.shape)
 df = pd.DataFrame(data=np.c_[cancer.data,cancer.target],columns=np.append(cancer.feature_names,'target'))
 
 print(df.head())
+
+print(y[0:5])
+print(y[399:404])
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+
+print(X_train.shape)
+print(X_test.shape)
+print(y_train.shape)
+print(y_test.shape)
+
+
+# Data is often scaled before learning, and StandardScaler is one class that does this.
+#This transforms data so that has a normal distribution with a mean
+#of 0 and a standard deviation of 1.
+#This means that all features are distributed across the same distribution, 
+# hence the learning algorithm isn't biased by the magnitude of values.
+from sklearn.preprocessing import StandardScaler
+
+
+from sklearn.linear_model import Perceptron
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Load the iris dataset from scikit-learn
+cancer = datasets.load_breast_cancer()
+
+X = cancer.data
+y = cancer.target
+
+# Split the data
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a Perceptron, with its training parameters
+ppn = Perceptron(max_iter=60,tol=0.001,eta0=1)
+
+# Train the model
+ppn.fit(X_train,y_train)
+
+# Make predication
+y_pred = ppn.predict(X_test)
+
+# Evaluate accuracy
+print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))
+
+# The trained model is a set of parameters defining a decision surface (a hyperplane) and we can see what these are:
+print(ppn.coef_)
+
+
+# Counting the labels of the target to confirm that the result isn't just
+# a balance of the labels 
+unique, counts = np.unique(y_test, return_counts=True)
+dict(zip(unique, counts))
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+
+diagnosis = cancer.target_names
+
+#python function, defined here to plot confusion matrices
+def plot_confusion_matrix(cm, names, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar(fraction=0.05)
+    tick_marks = np.arange(len(names))
+    plt.xticks(tick_marks, names, rotation=45)
+    plt.yticks(tick_marks, names)
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    
+cm = confusion_matrix(y_test, y_pred)
+np.set_printoptions(precision=2)
+print('Confusion matrix, without normalization')
+print(cm)
+plt.figure()
+plot_confusion_matrix(cm, diagnosis, title='')
+
+#graphical plots of confusion matrix using method above
+cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+print('Normalized confusion matrix')
+print(cm_normalized)
+plt.figure()
+plot_confusion_matrix(cm_normalized, diagnosis, title='Normalized confusion matrix')
+plt.show()
+
+
+# Another way of making a confusion matrix with Skikit-learn is shown below. 
+
+from sklearn.metrics import ConfusionMatrixDisplay
+
+sc = StandardScaler()
+
+sc.fit(X_train)
+X_train_std = sc.transform(X_train)
+X_test_std = sc.transform(X_test)
+
+print(X_train[0])
+print(X_train_std[0])
+
+ppn = Perceptron(max_iter=40,tol=0.001,eta0=1)
+
+# Train the model
+ppn.fit(X_train_std,y_train)
+
+# Make predication
+y_pred = ppn.predict(X_test_std)
+
+cm = confusion_matrix(y_test, y_pred)
+
+# Evaluate accuracy
+print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))
+
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=ppn.classes_)
+disp.plot()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
